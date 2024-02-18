@@ -1,0 +1,26 @@
+### Create user
+POST http://localhost:8080/users
+Content-Type: application/json
+
+{
+  "name": "Fernando Gómez",
+  "age": 23
+}
+
+### Create user validation error name
+POST http://localhost:8080/users
+Content-Type: application/json
+
+{
+  "name": "",
+  "age": 23
+}
+
+### Create user validation error age
+POST http://localhost:8080/users
+Content-Type: application/json
+
+{
+  "name": "Fernando Gómez",
+  "age": 0
+}

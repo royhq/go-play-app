@@ -1,7 +1,18 @@
 package main
 
-import "fmt"
+import (
+	"log"
+
+	"go-play-app/infra/bootstrap"
+)
 
 func main() {
-	fmt.Println("main app")
+	app, err := bootstrap.NewMainApp()
+	if err != nil {
+		log.Fatal("app bootstrap error:", err)
+	}
+
+	defer app.Shutdown()
+
+	log.Fatal(app.ListenAndServe(":8080"))
 }
