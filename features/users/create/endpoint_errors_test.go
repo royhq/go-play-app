@@ -72,6 +72,15 @@ func testErrorHandling(t *testing.T) {
 			expectedStatusCode: http.StatusBadRequest,
 			expectedResponse:   `{"code":"validation_error","message":"some data is not valid"}`,
 		},
+		"command error should return internal error": {
+			cmdErr: &create.CommandError{
+				Msg:   "test error",
+				Code:  "test_code",
+				Cause: errors.New("cause error"),
+			},
+			expectedStatusCode: http.StatusInternalServerError,
+			expectedResponse:   `{"code":"test_code","message":"test error"}`,
+		},
 		"another error should return internal error": {
 			cmdErr:             errors.New("something went wrong"),
 			expectedStatusCode: http.StatusInternalServerError,
