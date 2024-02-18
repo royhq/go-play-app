@@ -54,7 +54,7 @@ func NewMainApp() (*MainApp, error) {
 
 	app := &MainApp{
 		PingHandler:       ping.NewEndpointHandler(),
-		CreateUserHandler: userscreate.NewEndpointHandler(createUserCmdHandler.Handle),
+		CreateUserHandler: userscreate.NewEndpointHandler(createUserCmdHandler.Handle, userscreate.HandleCommandError),
 	}
 
 	app.onShutdown = append(app.onShutdown, func() {

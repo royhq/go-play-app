@@ -25,7 +25,7 @@ type Command struct {
 	Age  int
 }
 
-type CommandOut struct {
+type CommandOutput struct {
 	CreatedUser User
 }
 
@@ -35,9 +35,9 @@ type CommandHandler struct {
 	generateUUID UUIDGenerator
 }
 
-func (h *CommandHandler) Handle(ctx context.Context, cmd Command) (CommandOut, error) {
+func (h *CommandHandler) Handle(ctx context.Context, cmd Command) (CommandOutput, error) {
 	if err := h.validate(cmd); err != nil {
-		return CommandOut{}, err
+		return CommandOutput{}, err
 	}
 
 	user := User{
@@ -48,7 +48,7 @@ func (h *CommandHandler) Handle(ctx context.Context, cmd Command) (CommandOut, e
 	}
 
 	if err := h.inserter.Insert(ctx, user); err != nil {
-		return CommandOut{}, fmt.Errorf("create user error: %w", err)
+		return CommandOutput{}, fmt.Errorf("create user error: %w", err)
 	}
 
 	h.log.InfoContext(ctx, "user inserted successfully")
@@ -57,7 +57,7 @@ func (h *CommandHandler) Handle(ctx context.Context, cmd Command) (CommandOut, e
 
 	h.log.InfoContext(ctx, "user created successfully")
 
-	return CommandOut{CreatedUser: user}, nil
+	return CommandOutput{CreatedUser: user}, nil
 }
 
 func (h *CommandHandler) validate(cmd Command) error {

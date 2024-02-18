@@ -3,17 +3,20 @@ package create
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"net/http"
 	"time"
 
 	resp "go-play-app/infra/http/response"
 )
 
-type CommandHandlerFunc func(context.Context, Command) (CommandOut, error)
+type (
+	CommandHandlerFunc      func(context.Context, Command) (CommandOutput, error)
+	CommandErrorHandlerFunc func(http.ResponseWriter, error)
+)
 
 type EndpointHandler struct {
-	handleCreateUser CommandHandlerFunc
+	handleCreateUser   CommandHandlerFunc
+	handleCommandError CommandErrorHandlerFunc
 }
 
 func (h *EndpointHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -32,20 +35,18 @@ func (h *EndpointHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	out, err := h.handleCreateUser(ctx, cmd)
 	if err != nil {
-		if errors.Is(err, ErrValidation) {
-			resp.BadRequest(w, err.Error())
-			return
-		}
-
-		resp.InternalError(w, err.Error())
+		h.handleCommandError(w, err)
 		return
 	}
 
 	resp.Created(w, toResponse(out))
 }
 
-func NewEndpointHandler(cmdHandler CommandHandlerFunc) http.Handler {
-	return &EndpointHandler{handleCreateUser: cmdHandler}
+func NewEndpointHandler(cmdHandler CommandHandlerFunc, errHandler CommandErrorHandlerFunc) http.Handler {
+	return &EndpointHandler{
+		handleCreateUser:   cmdHandler,
+		handleCommandError: errHandler,
+	}
 }
 
 type request struct {
@@ -60,7 +61,7 @@ type response struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-func toResponse(out CommandOut) response {
+func toResponse(out CommandOutput) response {
 	return response{
 		ID:        string(out.CreatedUser.ID),
 		Name:      out.CreatedUser.Name,
