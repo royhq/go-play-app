@@ -10,13 +10,16 @@ import (
 )
 
 type (
-	CommandHandlerFunc      func(context.Context, Command) (CommandOutput, error)
-	CommandErrorHandlerFunc func(http.ResponseWriter, error)
+	CommandHandlerFunc func(context.Context, Command) (CommandOutput, error)
+
+	ErrorHandler interface {
+		HandleError(context.Context, http.ResponseWriter, error)
+	}
 )
 
 type EndpointHandler struct {
-	handleCreateUser   CommandHandlerFunc
-	handleCommandError CommandErrorHandlerFunc
+	handleCreateUser CommandHandlerFunc
+	errorHandler     ErrorHandler
 }
 
 func (h *EndpointHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -35,17 +38,17 @@ func (h *EndpointHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	out, err := h.handleCreateUser(ctx, cmd)
 	if err != nil {
-		h.handleCommandError(w, err)
+		h.errorHandler.HandleError(ctx, w, err)
 		return
 	}
 
 	resp.Created(w, toResponse(out))
 }
 
-func NewEndpointHandler(cmdHandler CommandHandlerFunc, errHandler CommandErrorHandlerFunc) http.Handler {
+func NewEndpointHandler(cmdHandler CommandHandlerFunc, errHandler ErrorHandler) http.Handler {
 	return &EndpointHandler{
-		handleCreateUser:   cmdHandler,
-		handleCommandError: errHandler,
+		handleCreateUser: cmdHandler,
+		errorHandler:     errHandler,
 	}
 }
 

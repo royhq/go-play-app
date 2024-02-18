@@ -1,8 +1,11 @@
 package create_test
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"io"
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -11,7 +14,7 @@ import (
 	"go-play-app/features/users/create"
 )
 
-func TestHandleCommandError(t *testing.T) {
+func TestEndpointErrorHandler_HandleError(t *testing.T) {
 	t.Parallel()
 
 	testCases := map[string]struct {
@@ -39,10 +42,12 @@ func TestHandleCommandError(t *testing.T) {
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
+			// GIVEN
+			handler := create.NewEndpointErrorHandler(noLogger())
 
 			// WHEN
 			rec := httptest.NewRecorder()
-			create.HandleCommandError(rec, tc.cmdErr)
+			handler.HandleError(context.Background(), rec, tc.cmdErr)
 
 			// THEN
 			assert.Equal(t, tc.expectedStatusCode, rec.Code)
@@ -50,4 +55,9 @@ func TestHandleCommandError(t *testing.T) {
 			assert.JSONEq(t, tc.expectedResponse, rec.Body.String())
 		})
 	}
+}
+
+func noLogger() *slog.Logger {
+	h := slog.NewTextHandler(io.Discard, nil)
+	return slog.New(h)
 }

@@ -78,7 +78,7 @@ func TestEndpointHandler_ServeHTTP(t *testing.T) {
 			return create.CommandOutput{}, errors.New("something went wrong")
 		})
 
-		errHandler := create.CommandErrorHandlerFunc(func(w http.ResponseWriter, e error) {
+		errHandler := errorHandlerFunc(func(_ context.Context, w http.ResponseWriter, e error) {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusInternalServerError)
 
@@ -98,4 +98,10 @@ func TestEndpointHandler_ServeHTTP(t *testing.T) {
 		assert.Equal(t, "application/json", rec.Header().Get("Content-Type"))
 		assert.JSONEq(t, `{"message":"something went wrong"}`, rec.Body.String())
 	})
+}
+
+type errorHandlerFunc func(context.Context, http.ResponseWriter, error)
+
+func (f errorHandlerFunc) HandleError(ctx context.Context, w http.ResponseWriter, e error) {
+	f(ctx, w, e)
 }
