@@ -9,9 +9,9 @@ import (
 	"go-play-app/features/ping"
 )
 
-func TestHandler_ServeHTTP(t *testing.T) {
+func TestEndpointHandler_ServeHTTP(t *testing.T) {
 	// GIVEN
-	handler := ping.NewHandler()
+	handler := ping.NewEndpointHandler()
 
 	// WHEN
 	rec := httptest.NewRecorder()

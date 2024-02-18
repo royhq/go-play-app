@@ -53,7 +53,7 @@ func NewMainApp() (*MainApp, error) {
 	createUserCmdHandler := userscreate.NewCommandHandler(logger, createUsersRepo, uuid.New)
 
 	app := &MainApp{
-		PingHandler:       ping.NewHandler(),
+		PingHandler:       ping.NewEndpointHandler(),
 		CreateUserHandler: userscreate.NewEndpointHandler(createUserCmdHandler.Handle),
 	}
 
