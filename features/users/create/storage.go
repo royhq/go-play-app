@@ -4,14 +4,17 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/jackc/pgx/v5/pgxpool"
-
 	_ "github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 )
+
+type DB interface {
+	Exec(ctx context.Context, sql string, args ...any) (pgconn.CommandTag, error)
+}
 
 type PgUsersRepository struct {
 	tableName string
-	db        *pgxpool.Pool
+	db        DB
 }
 
 func (r *PgUsersRepository) Insert(ctx context.Context, user User) error {
@@ -20,7 +23,7 @@ func (r *PgUsersRepository) Insert(ctx context.Context, user User) error {
 
 	q := fmt.Sprintf(qFmt, r.tableName)
 
-	_, err := r.db.Exec(ctx, q, user.ID, user.Name, user.Age, user.Created)
+	_, err := r.db.Exec(ctx, q, string(user.ID), user.Name, user.Age, user.Created)
 	if err != nil {
 		return fmt.Errorf("insert user error: %w", err)
 	}
@@ -28,7 +31,7 @@ func (r *PgUsersRepository) Insert(ctx context.Context, user User) error {
 	return nil
 }
 
-func NewPgUsersRepository(db *pgxpool.Pool, table string) *PgUsersRepository {
+func NewPgUsersRepository(db DB, table string) *PgUsersRepository {
 	return &PgUsersRepository{
 		tableName: table,
 		db:        db,
