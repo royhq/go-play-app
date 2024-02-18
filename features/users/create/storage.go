@@ -15,9 +15,8 @@ type PgUsersRepository struct {
 }
 
 func (r *PgUsersRepository) Insert(ctx context.Context, user User) error {
-	qFmt := `INSERT INTO %s
-			(id, "name", age, created_at)
-		  VALUES($1, $2, $3, $4)`
+	qFmt := `INSERT INTO %s (id, "name", age, created_at) 
+			 VALUES($1, $2, $3, $4)`
 
 	q := fmt.Sprintf(qFmt, r.tableName)
 

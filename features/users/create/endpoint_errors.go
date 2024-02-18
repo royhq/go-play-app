@@ -14,16 +14,55 @@ type EndpointErrorHandler struct {
 }
 
 func (h *EndpointErrorHandler) HandleError(ctx context.Context, w http.ResponseWriter, e error) {
-	h.logger.ErrorContext(ctx, "error handled", "error", e)
+	var (
+		errResponse   errorResponse
+		validationErr *ValidationError
+		cmdError      *CommandError
+	)
 
-	if errors.Is(e, ErrValidation) {
-		resp.BadRequest(w, e.Error())
-		return
+	switch {
+	case errors.As(e, &validationErr):
+		errResponse = errorResponse{
+			StatusCode: http.StatusBadRequest,
+			Code:       validationErr.Code(),
+			Msg:        validationErr.Msg,
+		}
+
+	case errors.As(e, &cmdError):
+		errResponse = errorResponse{
+			StatusCode: http.StatusInternalServerError,
+			Code:       cmdError.Code,
+			Msg:        cmdError.Msg,
+		}
+
+	default:
+		errResponse = errorResponse{
+			StatusCode: http.StatusInternalServerError,
+			Code:       "internal_error",
+			Msg:        "unexpected error",
+		}
 	}
 
-	resp.InternalError(w, e.Error())
+	h.logger.ErrorContext(ctx, "error handled",
+		slog.Any("error", e),
+		slog.Any("response", errResponse),
+		slog.Int("status_code", errResponse.StatusCode),
+		slog.Any("stack", stack(e)),
+	)
+
+	resp.JSONResponse(w, errResponse.StatusCode, errResponse)
 }
 
 func NewEndpointErrorHandler(logger *slog.Logger) *EndpointErrorHandler {
 	return &EndpointErrorHandler{logger: logger}
+}
+
+func stack(err error) []string {
+	errs := make([]string, 0)
+
+	for e := err; e != nil; e = errors.Unwrap(e) {
+		errs = append(errs, e.Error())
+	}
+
+	return errs
 }

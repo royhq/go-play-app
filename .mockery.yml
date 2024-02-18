@@ -1,0 +1,10 @@
+with-expecter: true
+dir: "./internal/mocks"
+filename: "mock_{{.InterfaceName}}.go"
+mockname: "{{.InterfaceName}}Mock"
+outpkg: "mocks"
+
+packages:
+  go-play-app/features/users/create:
+    interfaces:
+      UserInserter:

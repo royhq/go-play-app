@@ -27,7 +27,7 @@ func (h *EndpointHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	var req request
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		resp.BadRequest(w, "bad request")
+		resp.BadRequest(w, errorResponse{Code: "bad_request", Msg: "bad request"})
 		return
 	}
 
@@ -62,6 +62,12 @@ type response struct {
 	Name      string    `json:"name"`
 	Age       int       `json:"age"`
 	CreatedAt time.Time `json:"created_at"`
+}
+
+type errorResponse struct {
+	StatusCode int    `json:"-"`
+	Code       string `json:"code"`
+	Msg        string `json:"message"`
 }
 
 func toResponse(out CommandOutput) response {

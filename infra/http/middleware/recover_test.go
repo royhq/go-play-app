@@ -10,7 +10,11 @@ import (
 )
 
 func TestWithRecover(t *testing.T) {
+	t.Parallel()
+
 	t.Run("when handler panics should return internal error", func(t *testing.T) {
+		t.Parallel()
+
 		// GIVEN
 		panicHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			panic("something went wrong")
@@ -29,6 +33,8 @@ func TestWithRecover(t *testing.T) {
 	})
 
 	t.Run("when handler does not panic return response", func(t *testing.T) {
+		t.Parallel()
+
 		// GIVEN
 		var (
 			statusCode = http.StatusOK

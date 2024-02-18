@@ -9,6 +9,7 @@ import (
 	"os"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"go-play-app/commons/clock"
 	"go-play-app/features/ping"
 	userscreate "go-play-app/features/users/create"
 	"go-play-app/infra/http/middleware"
@@ -50,11 +51,13 @@ func NewMainApp() (*MainApp, error) {
 	}
 
 	createUsersRepo := userscreate.NewPgUsersRepository(db, "users")
-	createUserCmdHandler := userscreate.NewCommandHandler(logger, createUsersRepo, uuid.New)
+	createUserCmdHandler := userscreate.NewCommandHandler(logger, clock.Default(), createUsersRepo, uuid.New)
 
 	app := &MainApp{
-		PingHandler:       ping.NewEndpointHandler(),
-		CreateUserHandler: userscreate.NewEndpointHandler(createUserCmdHandler.Handle, userscreate.HandleCommandError),
+		PingHandler: ping.NewEndpointHandler(),
+		CreateUserHandler: userscreate.NewEndpointHandler(
+			createUserCmdHandler.Handle, userscreate.NewEndpointErrorHandler(logger),
+		),
 	}
 
 	app.onShutdown = append(app.onShutdown, func() {
@@ -70,6 +73,7 @@ func defaultLogger() *slog.Logger {
 	logger := slog.New(h)
 
 	slog.SetDefault(logger)
+
 	return logger
 }
 

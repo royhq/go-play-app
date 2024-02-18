@@ -15,7 +15,11 @@ import (
 )
 
 func TestEndpointHandler_ServeHTTP(t *testing.T) {
+	t.Parallel()
+
 	t.Run("when handle command successfully should return 201", func(t *testing.T) {
+		t.Parallel()
+
 		// GIVEN
 		reqBody := `
 		{
@@ -55,6 +59,8 @@ func TestEndpointHandler_ServeHTTP(t *testing.T) {
 	})
 
 	t.Run("bad request should be handled", func(t *testing.T) {
+		t.Parallel()
+
 		// GIVEN
 		reqBody := `{xxx}` // bad json input
 		handler := create.NewEndpointHandler(nil, nil)
@@ -67,10 +73,12 @@ func TestEndpointHandler_ServeHTTP(t *testing.T) {
 		// THEN
 		assert.Equal(t, http.StatusBadRequest, rec.Code)
 		assert.Equal(t, "application/json", rec.Header().Get("Content-Type"))
-		assert.JSONEq(t, `{"message":"bad request"}`, rec.Body.String())
+		assert.JSONEq(t, `{"code":"bad_request","message":"bad request"}`, rec.Body.String())
 	})
 
 	t.Run("when handle command with error should be handled", func(t *testing.T) {
+		t.Parallel()
+
 		// GIVEN
 		reqBody := `{"name":"John Doe","age":32}`
 

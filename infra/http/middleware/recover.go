@@ -13,7 +13,9 @@ func WithRecover(next http.Handler) http.Handler {
 			err := recover()
 			if err != nil {
 				log.Println("recovering from error:", err)
-				response.InternalError(w, "internal error")
+				response.InternalError(w, map[string]any{
+					"message": "internal error",
+				})
 			}
 		}()
 

@@ -11,7 +11,11 @@ import (
 )
 
 func TestWithRequestID(t *testing.T) {
+	t.Parallel()
+
 	t.Run("should add request id header to response", func(t *testing.T) {
+		t.Parallel()
+
 		// GIVEN
 		var reqID string
 
@@ -34,6 +38,8 @@ func TestWithRequestID(t *testing.T) {
 }
 
 func TestRequestID(t *testing.T) {
+	t.Parallel()
+
 	t.Run("when request id is not in context should return empty", func(t *testing.T) {
 		reqID := middleware.RequestID(context.Background())
 		assert.Empty(t, reqID)
