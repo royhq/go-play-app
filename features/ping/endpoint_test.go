@@ -20,6 +20,6 @@ func TestEndpointHandler_ServeHTTP(t *testing.T) {
 
 	// THEN
 	assert.Equal(t, http.StatusOK, rec.Code)
-	assert.Equal(t, "application/json", rec.Header().Get("Content-Type"))
+	assert.Equal(t, "text/plain", rec.Header().Get("Content-Type"))
 	assert.Equal(t, `pong`, rec.Body.String())
 }
