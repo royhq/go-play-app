@@ -5,6 +5,6 @@ mockname: "{{.InterfaceName}}Mock"
 outpkg: "mocks"
 
 packages:
-  go-play-app/features/users/create:
+  github.com/royhq/go-play-app/features/users/create:
     interfaces:
       UserInserter:

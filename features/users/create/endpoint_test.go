@@ -11,7 +11,8 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
-	"go-play-app/features/users/create"
+
+	"github.com/royhq/go-play-app/features/users/create"
 )
 
 func TestEndpointHandler_ServeHTTP(t *testing.T) {

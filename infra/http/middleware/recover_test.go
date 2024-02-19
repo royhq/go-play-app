@@ -6,7 +6,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"go-play-app/infra/http/middleware"
+
+	"github.com/royhq/go-play-app/infra/http/middleware"
 )
 
 func TestWithRecover(t *testing.T) {

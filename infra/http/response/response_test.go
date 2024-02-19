@@ -8,7 +8,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"go-play-app/infra/http/response"
+
+	"github.com/royhq/go-play-app/infra/http/response"
 )
 
 func TestJSONResponse(t *testing.T) {

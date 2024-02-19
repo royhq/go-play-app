@@ -9,7 +9,8 @@ import (
 	"github.com/pashagolub/pgxmock/v3"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"go-play-app/features/users/create"
+
+	"github.com/royhq/go-play-app/features/users/create"
 )
 
 func TestPgUsersRepository_Insert(t *testing.T) {

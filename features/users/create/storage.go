@@ -4,8 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	_ "github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
+
+	_ "github.com/jackc/pgx/v5"
 )
 
 type DB interface {

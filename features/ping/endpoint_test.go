@@ -6,7 +6,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"go-play-app/features/ping"
+
+	"github.com/royhq/go-play-app/features/ping"
 )
 
 func TestEndpointHandler_ServeHTTP(t *testing.T) {

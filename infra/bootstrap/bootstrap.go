@@ -9,11 +9,12 @@ import (
 	"os"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	"go-play-app/commons/clock"
-	"go-play-app/features/ping"
-	userscreate "go-play-app/features/users/create"
-	"go-play-app/infra/http/middleware"
-	"go-play-app/infra/uuid"
+
+	"github.com/royhq/go-play-app/commons/clock"
+	"github.com/royhq/go-play-app/features/ping"
+	userscreate "github.com/royhq/go-play-app/features/users/create"
+	"github.com/royhq/go-play-app/infra/http/middleware"
+	"github.com/royhq/go-play-app/infra/uuid"
 )
 
 type MainApp struct {
