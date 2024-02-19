@@ -47,6 +47,43 @@ func TestCommandHandler_Handle(t *testing.T) {
 		assert.Equal(t, expectedOut, out)
 	})
 
+	t.Run("when insert user fails should return error", func(t *testing.T) {
+		// GIVEN
+		_clock := clock.MustParseAt(time.RFC3339, "2024-03-20T15:23:00Z")
+		userInserter := mocks.NewUserInserterMock(t)
+		uuidGenerator := fakeUUIDGeneratorReturns("5d1b769c-777d-434c-9b76-9c777d734ce1")
+
+		cmdHandler := create.NewCommandHandler(noLogger(), _clock, userInserter, uuidGenerator)
+
+		expectedUser := create.User{
+			ID:      "5d1b769c-777d-434c-9b76-9c777d734ce1",
+			Name:    "John Doe",
+			Age:     21,
+			Created: _clock.Now(),
+		}
+
+		userInsertErr := errors.New("insert user error")
+		userInserter.EXPECT().Insert(mock.Anything, expectedUser).Return(userInsertErr).Once()
+
+		// WHEN
+		cmd := create.Command{
+			Name: "John Doe",
+			Age:  21,
+		}
+
+		out, err := cmdHandler.Handle(context.Background(), cmd)
+
+		// THEN
+		assert.Zero(t, out)
+
+		expectedErr := &create.CommandError{
+			Msg:   "create user error",
+			Code:  "users_error",
+			Cause: userInsertErr,
+		}
+		assert.Equal(t, expectedErr, err)
+	})
+
 	t.Run("command validation errors", testCommandValidationErrors)
 }
 
