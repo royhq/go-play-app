@@ -4,7 +4,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"go-play-app/infra/uuid"
+
+	"github.com/royhq/go-play-app/infra/uuid"
 )
 
 func TestNew(t *testing.T) {

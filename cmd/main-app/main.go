@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"go-play-app/infra/bootstrap"
+	"github.com/royhq/go-play-app/infra/bootstrap"
 )
 
 func main() {

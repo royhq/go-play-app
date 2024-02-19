@@ -2,6 +2,7 @@ package response
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 )
 
@@ -22,10 +23,20 @@ func InternalError(w http.ResponseWriter, response any) {
 }
 
 func JSONResponse(w http.ResponseWriter, statusCode int, response any) {
+	code := statusCode
+
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(statusCode)
 
-	jsonResp, _ := json.Marshal(response)
+	jsonResp, err := json.Marshal(response)
+	if err != nil {
+		code = http.StatusInternalServerError
+		jsonResp = rawErrorResponse("unmarshal response error")
+	}
 
-	_, _ = w.Write(jsonResp)
+	w.WriteHeader(code)
+	_, _ = w.Write(jsonResp) //nolint: errcheck // no error here
+}
+
+func rawErrorResponse(msg string) []byte {
+	return []byte(fmt.Sprintf(`{"message":"%s"}`, msg))
 }

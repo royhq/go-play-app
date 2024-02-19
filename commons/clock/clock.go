@@ -6,19 +6,17 @@ type Clock interface {
 	Now() time.Time
 }
 
-type ClockFunc func() time.Time
+type TimeFunc func() time.Time
 
-func (f ClockFunc) Now() time.Time {
+func (f TimeFunc) Now() time.Time {
 	return f()
 }
 
-func At(v time.Time) Clock {
-	return ClockFunc(func() time.Time {
-		return v
-	})
+func At(v time.Time) TimeFunc {
+	return func() time.Time { return v }
 }
 
-func MustParseAt(layout, value string) Clock {
+func MustParseAt(layout, value string) TimeFunc {
 	parsed, err := time.Parse(layout, value)
 	if err != nil {
 		panic(err)
@@ -27,6 +25,4 @@ func MustParseAt(layout, value string) Clock {
 	return At(parsed)
 }
 
-func Default() Clock {
-	return ClockFunc(time.Now)
-}
+func Default() TimeFunc { return time.Now }

@@ -5,7 +5,7 @@ import (
 	"errors"
 	"log/slog"
 
-	"go-play-app/commons/clock"
+	"github.com/royhq/go-play-app/commons/clock"
 )
 
 type (
@@ -78,7 +78,12 @@ func (h *CommandHandler) validate(cmd Command) error {
 	return nil
 }
 
-func NewCommandHandler(log *slog.Logger, clock clock.Clock, inserter UserInserter, uuidGen UUIDGenerator) *CommandHandler {
+func NewCommandHandler(
+	log *slog.Logger,
+	clock clock.Clock,
+	inserter UserInserter,
+	uuidGen UUIDGenerator,
+) *CommandHandler {
 	return &CommandHandler{
 		log:          log,
 		clock:        clock,

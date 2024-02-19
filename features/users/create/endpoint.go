@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	resp "go-play-app/infra/http/response"
+	resp "github.com/royhq/go-play-app/infra/http/response"
 )
 
 type (
@@ -31,10 +31,7 @@ func (h *EndpointHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cmd := Command{
-		Name: req.Name,
-		Age:  req.Age,
-	}
+	cmd := Command(req)
 
 	out, err := h.handleCreateUser(ctx, cmd)
 	if err != nil {
