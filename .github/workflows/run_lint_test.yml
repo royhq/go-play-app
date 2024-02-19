@@ -6,10 +6,6 @@ on:
   pull_request:
     branches: [ "main" ]
 
-env:
-  CI_GO_VERSION: 1.22
-  CI_GOLANGCI_LINT_VERSION: v1.56.2
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -19,12 +15,12 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: "$CI_GO_VERSION"
+          go-version: "1.22"
 
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v4
         with:
-          version: "$CI_GOLANGCI_LINT_VERSION"
+          version: v1.56.2
 
       - name: Build
         run: go build -v ./...
