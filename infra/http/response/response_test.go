@@ -1,13 +1,12 @@
 package response_test
 
 import (
-	"io"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 
 	"github.com/royhq/go-play-app/infra/http/response"
 )
@@ -15,19 +14,27 @@ import (
 func TestJSONResponse(t *testing.T) {
 	t.Parallel()
 
-	// WHEN
-	rec := httptest.NewRecorder()
-	response.JSONResponse(rec, http.StatusOK, map[string]any{
-		"message": "test message",
+	t.Run("success marshal response", func(t *testing.T) {
+		// WHEN
+		rec := httptest.NewRecorder()
+		response.JSONResponse(rec, http.StatusOK, map[string]any{
+			"message": "test message",
+		})
+
+		// THEN
+		assert.Equal(t, http.StatusOK, rec.Code)
+		assert.JSONEq(t, `{"message":"test message"}`, rec.Body.String())
 	})
 
-	// THEN
-	result := rec.Result()
-	assert.Equal(t, http.StatusOK, result.StatusCode)
+	t.Run("marshal response error", func(t *testing.T) {
+		// WHEN
+		rec := httptest.NewRecorder()
+		response.JSONResponse(rec, http.StatusInternalServerError, failedMarshal{})
 
-	respBody, err := io.ReadAll(result.Body)
-	require.NoError(t, err)
-	assert.JSONEq(t, `{"message":"test message"}`, string(respBody))
+		// THEN
+		assert.Equal(t, http.StatusInternalServerError, rec.Code)
+		assert.JSONEq(t, `{"message":"unmarshal response error"}`, rec.Body.String())
+	})
 }
 
 func TestOk(t *testing.T) {
@@ -49,12 +56,8 @@ func TestOk(t *testing.T) {
 	})
 
 	// THEN
-	result := rec.Result()
-	assert.Equal(t, http.StatusOK, result.StatusCode)
-
-	respBody, err := io.ReadAll(result.Body)
-	require.NoError(t, err)
-	assert.JSONEq(t, `{"attr_string":"a string","attr_int":123,"attr_bool":true}`, string(respBody))
+	assert.Equal(t, http.StatusOK, rec.Code)
+	assert.JSONEq(t, `{"attr_string":"a string","attr_int":123,"attr_bool":true}`, rec.Body.String())
 }
 
 func TestCreated(t *testing.T) {
@@ -76,12 +79,8 @@ func TestCreated(t *testing.T) {
 	})
 
 	// THEN
-	result := rec.Result()
-	assert.Equal(t, http.StatusCreated, result.StatusCode)
-
-	respBody, err := io.ReadAll(result.Body)
-	require.NoError(t, err)
-	assert.JSONEq(t, `{"attr_string":"a string","attr_int":123,"attr_bool":true}`, string(respBody))
+	assert.Equal(t, http.StatusCreated, rec.Code)
+	assert.JSONEq(t, `{"attr_string":"a string","attr_int":123,"attr_bool":true}`, rec.Body.String())
 }
 
 func TestBadRequest(t *testing.T) {
@@ -97,12 +96,8 @@ func TestBadRequest(t *testing.T) {
 	response.BadRequest(rec, resp)
 
 	// THEN
-	result := rec.Result()
-	assert.Equal(t, http.StatusBadRequest, result.StatusCode)
-
-	respBody, err := io.ReadAll(result.Body)
-	require.NoError(t, err)
-	assert.JSONEq(t, `{"code":"bad_request","message":"something went wrong"}`, string(respBody))
+	assert.Equal(t, http.StatusBadRequest, rec.Code)
+	assert.JSONEq(t, `{"code":"bad_request","message":"something went wrong"}`, rec.Body.String())
 }
 
 func TestInternalError(t *testing.T) {
@@ -118,15 +113,17 @@ func TestInternalError(t *testing.T) {
 	response.InternalError(rec, resp)
 
 	// THEN
-	result := rec.Result()
-	assert.Equal(t, http.StatusInternalServerError, result.StatusCode)
-
-	respBody, err := io.ReadAll(result.Body)
-	require.NoError(t, err)
-	assert.JSONEq(t, `{"code":"internal_error","message":"something went wrong"}`, string(respBody))
+	assert.Equal(t, http.StatusInternalServerError, rec.Code)
+	assert.JSONEq(t, `{"code":"internal_error","message":"something went wrong"}`, rec.Body.String())
 }
 
 type testErrorResponse struct {
 	Code    string `json:"code"`
 	Message string `json:"message"`
+}
+
+type failedMarshal struct{}
+
+func (f failedMarshal) MarshalJSON() ([]byte, error) {
+	return nil, fmt.Errorf("marshal error")
 }
