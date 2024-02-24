@@ -9,9 +9,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
-	"github.com/royhq/go-play-app/commons/clock"
-	"github.com/royhq/go-play-app/features/users/create"
 	"github.com/royhq/go-play-app/internal/mocks"
+	"github.com/royhq/go-play-app/shared/commons/clock"
+	"github.com/royhq/go-play-app/use_cases/users/create"
 )
 
 func TestCommandHandler_Handle(t *testing.T) {

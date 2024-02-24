@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	resp "github.com/royhq/go-play-app/infra/http/response"
+	resp "github.com/royhq/go-play-app/shared/infra/http/response"
 )
 
 type (

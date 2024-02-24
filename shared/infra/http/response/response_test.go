@@ -8,7 +8,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/royhq/go-play-app/infra/http/response"
+	"github.com/royhq/go-play-app/shared/infra/http/response"
 )
 
 func TestJSONResponse(t *testing.T) {

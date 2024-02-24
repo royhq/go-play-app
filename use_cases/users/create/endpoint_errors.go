@@ -6,7 +6,7 @@ import (
 	"log/slog"
 	"net/http"
 
-	resp "github.com/royhq/go-play-app/infra/http/response"
+	resp "github.com/royhq/go-play-app/shared/infra/http/response"
 )
 
 type EndpointErrorHandler struct {

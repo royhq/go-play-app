@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/royhq/go-play-app/infra/uuid"
+	"github.com/royhq/go-play-app/shared/infra/uuid"
 )
 
 type ctxKey string

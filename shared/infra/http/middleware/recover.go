@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/royhq/go-play-app/infra/http/response"
+	"github.com/royhq/go-play-app/shared/infra/http/response"
 )
 
 func WithRecover(next http.Handler) http.Handler {

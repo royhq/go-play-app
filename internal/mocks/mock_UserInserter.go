@@ -5,7 +5,7 @@ package mocks
 import (
 	context "context"
 
-	create "github.com/royhq/go-play-app/features/users/create"
+	create "github.com/royhq/go-play-app/use_cases/users/create"
 	mock "github.com/stretchr/testify/mock"
 )
 

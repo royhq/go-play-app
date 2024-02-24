@@ -10,11 +10,11 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/royhq/go-play-app/commons/clock"
-	"github.com/royhq/go-play-app/features/ping"
-	userscreate "github.com/royhq/go-play-app/features/users/create"
-	"github.com/royhq/go-play-app/infra/http/middleware"
-	"github.com/royhq/go-play-app/infra/uuid"
+	"github.com/royhq/go-play-app/shared/commons/clock"
+	middleware2 "github.com/royhq/go-play-app/shared/infra/http/middleware"
+	"github.com/royhq/go-play-app/shared/infra/uuid"
+	"github.com/royhq/go-play-app/use_cases/ping"
+	userscreate "github.com/royhq/go-play-app/use_cases/users/create"
 )
 
 type MainApp struct {
@@ -27,8 +27,8 @@ type MainApp struct {
 func (a *MainApp) ListenAndServe(addr string) error {
 	mux := http.NewServeMux()
 
-	pingHandler := middleware.WithRecover(a.PingHandler)
-	createUserHandler := middleware.WithRecover(middleware.WithRequestID(a.CreateUserHandler))
+	pingHandler := middleware2.WithRecover(a.PingHandler)
+	createUserHandler := middleware2.WithRecover(middleware2.WithRequestID(a.CreateUserHandler))
 
 	// routing
 	mux.Handle("GET /ping", pingHandler)

@@ -5,7 +5,7 @@ import (
 	"errors"
 	"log/slog"
 
-	"github.com/royhq/go-play-app/commons/clock"
+	"github.com/royhq/go-play-app/shared/commons/clock"
 )
 
 type (
