@@ -34,6 +34,7 @@ func (h *EndpointHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			Code:           "bad_request",
 			Msg:            "user_id is required",
 		})
+
 		return
 	}
 

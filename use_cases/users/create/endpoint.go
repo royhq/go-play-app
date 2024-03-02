@@ -33,6 +33,7 @@ func (h *EndpointHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			Code:           "bad_request",
 			Msg:            "bad request",
 		})
+
 		return
 	}
 

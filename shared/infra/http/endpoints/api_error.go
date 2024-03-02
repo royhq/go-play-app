@@ -12,7 +12,7 @@ type APIError struct {
 }
 
 func (e *APIError) LogValue() slog.Value {
-	v, _ := e.Response()
+	v, _ := e.Response() //nolint:errcheck // no errors here
 	return slog.StringValue(string(v))
 }
 
