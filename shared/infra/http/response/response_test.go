@@ -1,6 +1,7 @@
 package response_test
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -33,7 +34,7 @@ func TestJSONResponse(t *testing.T) {
 
 		// THEN
 		assert.Equal(t, http.StatusInternalServerError, rec.Code)
-		assert.JSONEq(t, `{"message":"unmarshal response error"}`, rec.Body.String())
+		assert.JSONEq(t, `{"message":"marshal response error"}`, rec.Body.String())
 	})
 }
 
@@ -83,43 +84,39 @@ func TestCreated(t *testing.T) {
 	assert.JSONEq(t, `{"attr_string":"a string","attr_int":123,"attr_bool":true}`, rec.Body.String())
 }
 
-func TestBadRequest(t *testing.T) {
+func TestAPIError(t *testing.T) {
 	t.Parallel()
 
-	// WHEN
-	resp := testErrorResponse{
-		Code:    "bad_request",
-		Message: "something went wrong",
+	// GIVEN
+	apiErr := testAPIError{
+		HTTPStatusCode: http.StatusTeapot,
+		AttrString:     "a string",
+		AttrInt:        123,
+		AttrBool:       true,
 	}
 
-	rec := httptest.NewRecorder()
-	response.BadRequest(rec, resp)
-
-	// THEN
-	assert.Equal(t, http.StatusBadRequest, rec.Code)
-	assert.JSONEq(t, `{"code":"bad_request","message":"something went wrong"}`, rec.Body.String())
-}
-
-func TestInternalError(t *testing.T) {
-	t.Parallel()
-
 	// WHEN
-	resp := testErrorResponse{
-		Code:    "internal_error",
-		Message: "something went wrong",
-	}
-
 	rec := httptest.NewRecorder()
-	response.InternalError(rec, resp)
+	response.APIError(rec, apiErr)
 
 	// THEN
-	assert.Equal(t, http.StatusInternalServerError, rec.Code)
-	assert.JSONEq(t, `{"code":"internal_error","message":"something went wrong"}`, rec.Body.String())
+	assert.Equal(t, http.StatusTeapot, rec.Code)
+	assert.JSONEq(t, `{"attr_string":"a string","attr_int":123,"attr_bool":true}`, rec.Body.String())
 }
 
-type testErrorResponse struct {
-	Code    string `json:"code"`
-	Message string `json:"message"`
+type testAPIError struct {
+	HTTPStatusCode int    `json:"-"`
+	AttrString     string `json:"attr_string"`
+	AttrInt        int    `json:"attr_int"`
+	AttrBool       bool   `json:"attr_bool"`
+}
+
+func (e testAPIError) StatusCode() int {
+	return e.HTTPStatusCode
+}
+
+func (e testAPIError) Response() ([]byte, error) {
+	return json.Marshal(e)
 }
 
 type failedMarshal struct{}

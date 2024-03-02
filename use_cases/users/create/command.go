@@ -6,6 +6,7 @@ import (
 	"log/slog"
 
 	"github.com/royhq/go-play-app/shared/commons/clock"
+	"github.com/royhq/go-play-app/shared/domain"
 )
 
 type (
@@ -47,7 +48,7 @@ func (h *CommandHandler) Handle(ctx context.Context, cmd Command) (CommandOutput
 	}
 
 	user := User{
-		ID:      UserID(h.generateUUID()),
+		ID:      domain.UserID(h.generateUUID()),
 		Name:    cmd.Name,
 		Age:     cmd.Age,
 		Created: h.clock.Now(),

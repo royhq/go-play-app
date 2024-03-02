@@ -3,7 +3,6 @@ package create_test
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -13,7 +12,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 
 	"github.com/royhq/go-play-app/use_cases/users/create"
 )
@@ -25,7 +23,7 @@ func TestEndpointErrorHandler_HandleError(t *testing.T) {
 
 	t.Run("should log error handled", func(t *testing.T) {
 		// GIVEN
-		logger, buff := buffLogger()
+		logger, buf := buffLogger()
 		handler := create.NewEndpointErrorHandler(logger)
 
 		err1 := errors.New("error 1")
@@ -36,27 +34,10 @@ func TestEndpointErrorHandler_HandleError(t *testing.T) {
 		handler.HandleError(context.Background(), rec, err2)
 
 		// THEN
-		var fields map[string]any
+		expected :=
+			`{"time":"((?:(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2}:\d{2}(?:\.\d+)?))(Z|[\+-]\d{2}:\d{2})?)","level":"ERROR","msg":"error handled","error":"error 2: error 1","response":"{\\"code\\":\\"internal_error\\",\\"message\\":\\"unexpected error\\"}","status_code":500,"stack":\["error 2: error 1","error 1"\]}` // nolint:lll
 
-		err := json.Unmarshal(buff.Bytes(), &fields)
-		require.NoError(t, err)
-
-		assert.Equal(t, "ERROR", fields["level"])            // log level
-		assert.Equal(t, "error handled", fields["msg"])      // log message
-		assert.Equal(t, "error 2: error 1", fields["error"]) // log error
-
-		// log response
-		assert.Equal(t, "internal_error", fields["response"].(map[string]any)["code"])
-		assert.Equal(t, "unexpected error", fields["response"].(map[string]any)["message"])
-		assert.Equal(t, float64(http.StatusInternalServerError), fields["status_code"])
-
-		// log error stack
-		stack, ok := fields["stack"].([]any)
-		require.True(t, ok)
-
-		assert.Len(t, stack, 2)
-		assert.Equal(t, "error 2: error 1", stack[0])
-		assert.Equal(t, "error 1", stack[1])
+		assert.Regexp(t, expected, buf.String())
 	})
 }
 
