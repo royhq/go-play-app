@@ -13,7 +13,8 @@ type UserReplicatorApp struct {
 }
 
 func (a *UserReplicatorApp) Start() error {
-	return a.eventListener.Listen(context.Background())
+	ctx := context.Background()
+	return a.eventListener.Listen(ctx)
 }
 
 func (a *UserReplicatorApp) Shutdown() {

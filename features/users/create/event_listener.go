@@ -20,9 +20,9 @@ type RabbitEventListener struct {
 	log          *slog.Logger
 }
 
-func (r *RabbitEventListener) Listen(ctx context.Context) error {
-	eventsCh, err := r.ch.ConsumeWithContext(ctx,
-		r.queue,
+func (l *RabbitEventListener) Listen(ctx context.Context) error {
+	eventsCh, err := l.ch.ConsumeWithContext(ctx,
+		l.queue,
 		"",
 		true,
 		false,
@@ -35,38 +35,44 @@ func (r *RabbitEventListener) Listen(ctx context.Context) error {
 		return fmt.Errorf("rabbitmq consume error: %w", err)
 	}
 
-	log := r.log.With(slog.String("queue", r.queue))
-
-	var forever chan struct{}
+	errCh := make(chan error)
 
 	go func() {
-		log.InfoContext(ctx, "listening...")
+		l.log.InfoContext(ctx, "listening...")
 
-		for e := range eventsCh {
-			log.DebugContext(ctx, "event received", slog.String("body", string(e.Body)))
-
-			var evt CreatedUserEvent
-			if evtErr := json.Unmarshal(e.Body, &evt); evtErr != nil {
-				log.ErrorContext(ctx, "unmarshal event error", "error", evtErr)
+		for {
+			select {
+			case <-ctx.Done():
+				errCh <- ctx.Err()
 				return
-			}
-
-			if listenErr := r.eventHandler.Handle(ctx, evt); listenErr != nil {
-				log.ErrorContext(ctx, "error listening event",
-					slog.Any("error", listenErr),
-					slog.Any("event", evt))
+			case e := <-eventsCh:
+				l.processEvent(ctx, e)
 			}
 		}
 	}()
 
-	select {
-	case <-ctx.Done():
-		log.InfoContext(ctx, "ctx done", "error", ctx.Err())
-		return ctx.Err()
-	case <-forever:
+	err = <-errCh
+
+	l.log.InfoContext(ctx, "listener stopped", "error", err)
+
+	return err
+}
+
+func (l *RabbitEventListener) processEvent(ctx context.Context, e amqp.Delivery) {
+	l.log.DebugContext(ctx, "event received", slog.String("body", string(e.Body)))
+
+	var evt CreatedUserEvent
+
+	if evtErr := json.Unmarshal(e.Body, &evt); evtErr != nil {
+		l.log.ErrorContext(ctx, "unmarshal event error", "error", evtErr)
+		return
 	}
 
-	return nil
+	if listenErr := l.eventHandler.Handle(ctx, evt); listenErr != nil {
+		l.log.ErrorContext(ctx, "error listening event",
+			slog.Any("error", listenErr),
+			slog.Any("event", evt))
+	}
 }
 
 func NewRabbitEventListener(
@@ -79,6 +85,6 @@ func NewRabbitEventListener(
 		queue:        queue,
 		ch:           ch,
 		eventHandler: handler,
-		log:          log,
+		log:          log.With(slog.String("queue", queue)),
 	}
 }
