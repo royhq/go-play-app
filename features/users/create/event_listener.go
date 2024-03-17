@@ -46,7 +46,7 @@ func (l *RabbitEventListener) Listen(ctx context.Context) error {
 				errCh <- ctx.Err()
 				return
 			case e := <-eventsCh:
-				l.processEvent(ctx, e)
+				l.processEvent(ctx, &e)
 			}
 		}
 	}()
@@ -58,7 +58,7 @@ func (l *RabbitEventListener) Listen(ctx context.Context) error {
 	return err
 }
 
-func (l *RabbitEventListener) processEvent(ctx context.Context, e amqp.Delivery) {
+func (l *RabbitEventListener) processEvent(ctx context.Context, e *amqp.Delivery) {
 	l.log.DebugContext(ctx, "event received", slog.String("body", string(e.Body)))
 
 	var evt CreatedUserEvent
