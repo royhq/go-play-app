@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 
@@ -17,7 +18,11 @@ type CreatePoolInput struct {
 	Ping     bool
 }
 
-func CreatePool(input CreatePoolInput) (*pgxpool.Pool, error) {
+func CreatePool(input *CreatePoolInput) (*pgxpool.Pool, error) {
+	if input == nil {
+		return nil, errors.New("input cannot be nil")
+	}
+
 	ctx := context.Background()
 
 	conn, err := pgxpool.New(ctx, connectionString(input))
@@ -36,7 +41,7 @@ func CreatePool(input CreatePoolInput) (*pgxpool.Pool, error) {
 	return conn, nil
 }
 
-func connectionString(i CreatePoolInput) string {
+func connectionString(i *CreatePoolInput) string {
 	return fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
 		i.Host, i.Port, i.User, i.Password, i.Database)
 }

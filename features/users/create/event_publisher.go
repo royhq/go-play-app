@@ -38,7 +38,6 @@ func (p *RabbitEventPublisher) Publish(ctx context.Context, event CreatedUserEve
 	}
 
 	p.log.DebugContext(ctx, "event published", slog.Any("event", event))
-
 }
 
 func NewRabbitEventPublisher(queue string, ch *amqp.Channel, log *slog.Logger) *RabbitEventPublisher {

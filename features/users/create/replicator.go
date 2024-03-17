@@ -21,7 +21,7 @@ type UserReplicator struct {
 	log     *slog.Logger
 }
 
-func (r *UserReplicator) Handle(ctx context.Context, event CreatedUserEvent) error {
+func (r *UserReplicator) Handle(ctx context.Context, event CreatedUserEvent) error { //nolint:unparam // wip
 	r.log.DebugContext(ctx, "replicator start handling event...",
 		slog.Any("event", event))
 
@@ -30,6 +30,6 @@ func (r *UserReplicator) Handle(ctx context.Context, event CreatedUserEvent) err
 	return nil
 }
 
-func NewUserReplicator(users UserGetter, replica UsersReplica, log *slog.Logger) *UserReplicator {
+func NewUserReplicator(_ UserGetter, _ UsersReplica, log *slog.Logger) *UserReplicator {
 	return &UserReplicator{log: log}
 }

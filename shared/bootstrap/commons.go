@@ -22,9 +22,9 @@ func defaultLogger() *slog.Logger {
 
 func dbConnection() (*pgxpool.Pool, error) {
 	// TODO: this should be obtained from env var or similar.
-	return postgres.CreatePool(postgres.CreatePoolInput{
+	return postgres.CreatePool(&postgres.CreatePoolInput{
 		Host:     "localhost",
-		Port:     5432,
+		Port:     5432, //nolint:gomnd // default port
 		User:     "postgres",
 		Password: "postgres",
 		Database: "postgres",

@@ -35,7 +35,7 @@ func (a *UsersAPIApp) Shutdown() {
 
 func NewUsersAPI() (*UsersAPIApp, error) {
 	logger := defaultLogger()
-	onShutdown := make([]func(), 0, 2)
+	onShutdown := make([]func(), 0, 2) //nolint:gomnd // max funcs
 
 	db, err := dbConnection()
 	if err != nil {
