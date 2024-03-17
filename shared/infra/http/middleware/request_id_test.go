@@ -8,7 +8,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/royhq/go-play-app/infra/http/middleware"
+	"github.com/royhq/go-play-app/shared/infra/http/middleware"
 )
 
 func TestWithRequestID(t *testing.T) {

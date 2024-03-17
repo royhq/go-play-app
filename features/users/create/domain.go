@@ -1,12 +1,19 @@
 package create
 
-import "time"
+import (
+	"time"
 
-type UserID string
+	"github.com/royhq/go-play-app/shared/domain"
+)
 
 type User struct {
-	ID      UserID
+	ID      domain.UserID
 	Name    string
 	Age     int
 	Created time.Time
+}
+
+type CreatedUserEvent struct {
+	Date   time.Time `json:"date"`
+	UserID string    `json:"user_id"`
 }

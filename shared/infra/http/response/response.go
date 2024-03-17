@@ -14,27 +14,38 @@ func Created(w http.ResponseWriter, response any) {
 	JSONResponse(w, http.StatusCreated, response)
 }
 
-func BadRequest(w http.ResponseWriter, response any) {
-	JSONResponse(w, http.StatusBadRequest, response)
+type apiError interface {
+	StatusCode() int
+	Response() ([]byte, error)
 }
 
-func InternalError(w http.ResponseWriter, response any) {
-	JSONResponse(w, http.StatusInternalServerError, response)
+func APIError(w http.ResponseWriter, apiError apiError) {
+	jsonResponse(w, apiError.StatusCode(), apiError.Response)
 }
 
 func JSONResponse(w http.ResponseWriter, statusCode int, response any) {
+	jsonResponse(w, statusCode, responseMarshaler(response))
+}
+
+func jsonResponse(w http.ResponseWriter, statusCode int, response func() ([]byte, error)) {
 	code := statusCode
 
 	w.Header().Set("Content-Type", "application/json")
 
-	jsonResp, err := json.Marshal(response)
+	jsonResp, err := response()
 	if err != nil {
 		code = http.StatusInternalServerError
-		jsonResp = rawErrorResponse("unmarshal response error")
+		jsonResp = rawErrorResponse("marshal response error")
 	}
 
 	w.WriteHeader(code)
 	_, _ = w.Write(jsonResp) //nolint: errcheck // no error here
+}
+
+func responseMarshaler(response any) func() ([]byte, error) {
+	return func() ([]byte, error) {
+		return json.Marshal(response)
+	}
 }
 
 func rawErrorResponse(msg string) []byte {

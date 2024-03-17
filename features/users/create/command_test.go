@@ -9,9 +9,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
-	"github.com/royhq/go-play-app/commons/clock"
 	"github.com/royhq/go-play-app/features/users/create"
 	"github.com/royhq/go-play-app/internal/mocks"
+	"github.com/royhq/go-play-app/shared/commons/clock"
 )
 
 func TestCommandHandler_Handle(t *testing.T) {
@@ -19,9 +19,10 @@ func TestCommandHandler_Handle(t *testing.T) {
 		// GIVEN
 		_clock := clock.MustParseAt(time.RFC3339, "2024-03-20T15:23:00Z")
 		userInserter := mocks.NewUserInserterMock(t)
+		eventPublisher := mocks.NewUserCreatedEventPublisherMock(t)
 		uuidGenerator := fakeUUIDGeneratorReturns("5d1b769c-777d-434c-9b76-9c777d734ce1")
 
-		cmdHandler := create.NewCommandHandler(noLogger(), _clock, userInserter, uuidGenerator)
+		cmdHandler := create.NewCommandHandler(noLogger(), _clock, userInserter, eventPublisher, uuidGenerator)
 
 		expectedUser := create.User{
 			ID:      "5d1b769c-777d-434c-9b76-9c777d734ce1",
@@ -31,6 +32,9 @@ func TestCommandHandler_Handle(t *testing.T) {
 		}
 
 		userInserter.EXPECT().Insert(mock.Anything, expectedUser).Return(nil).Once()
+
+		expectedEvent := create.CreatedUserEvent{Date: _clock.Now(), UserID: string(expectedUser.ID)}
+		eventPublisher.EXPECT().Publish(mock.Anything, expectedEvent).Return().Once()
 
 		// WHEN
 		cmd := create.Command{
@@ -51,9 +55,10 @@ func TestCommandHandler_Handle(t *testing.T) {
 		// GIVEN
 		_clock := clock.MustParseAt(time.RFC3339, "2024-03-20T15:23:00Z")
 		userInserter := mocks.NewUserInserterMock(t)
+		eventPublisher := mocks.NewUserCreatedEventPublisherMock(t)
 		uuidGenerator := fakeUUIDGeneratorReturns("5d1b769c-777d-434c-9b76-9c777d734ce1")
 
-		cmdHandler := create.NewCommandHandler(noLogger(), _clock, userInserter, uuidGenerator)
+		cmdHandler := create.NewCommandHandler(noLogger(), _clock, userInserter, eventPublisher, uuidGenerator)
 
 		expectedUser := create.User{
 			ID:      "5d1b769c-777d-434c-9b76-9c777d734ce1",
@@ -115,7 +120,7 @@ func testCommandValidationErrors(t *testing.T) {
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
 			// GIVEN
-			cmdHandler := create.NewCommandHandler(noLogger(), nil, nil, nil)
+			cmdHandler := create.NewCommandHandler(noLogger(), nil, nil, nil, nil)
 
 			// WHEN
 			out, err := cmdHandler.Handle(context.Background(), tc.givenCmd)

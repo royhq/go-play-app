@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/royhq/go-play-app/infra/uuid"
+	"github.com/royhq/go-play-app/shared/infra/uuid"
 )
 
 func TestNew(t *testing.T) {

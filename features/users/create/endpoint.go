@@ -6,7 +6,8 @@ import (
 	"net/http"
 	"time"
 
-	resp "github.com/royhq/go-play-app/infra/http/response"
+	"github.com/royhq/go-play-app/shared/infra/http/endpoints"
+	resp "github.com/royhq/go-play-app/shared/infra/http/response"
 )
 
 type (
@@ -18,8 +19,8 @@ type (
 )
 
 type EndpointHandler struct {
-	handleCreateUser CommandHandlerFunc
-	errorHandler     ErrorHandler
+	createUser   CommandHandlerFunc
+	errorHandler ErrorHandler
 }
 
 func (h *EndpointHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -27,13 +28,18 @@ func (h *EndpointHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	var req request
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		resp.BadRequest(w, errorResponse{Code: "bad_request", Msg: "bad request"})
+		resp.APIError(w, &endpoints.APIError{
+			HTTPStatusCode: http.StatusBadRequest,
+			Code:           "bad_request",
+			Msg:            "bad request",
+		})
+
 		return
 	}
 
 	cmd := Command(req)
 
-	out, err := h.handleCreateUser(ctx, cmd)
+	out, err := h.createUser(ctx, cmd)
 	if err != nil {
 		h.errorHandler.HandleError(ctx, w, err)
 		return
@@ -44,8 +50,8 @@ func (h *EndpointHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func NewEndpointHandler(cmdHandler CommandHandlerFunc, errHandler ErrorHandler) http.Handler {
 	return &EndpointHandler{
-		handleCreateUser: cmdHandler,
-		errorHandler:     errHandler,
+		createUser:   cmdHandler,
+		errorHandler: errHandler,
 	}
 }
 
@@ -59,12 +65,6 @@ type response struct {
 	Name      string    `json:"name"`
 	Age       int       `json:"age"`
 	CreatedAt time.Time `json:"created_at"`
-}
-
-type errorResponse struct {
-	StatusCode int    `json:"-"`
-	Code       string `json:"code"`
-	Msg        string `json:"message"`
 }
 
 func toResponse(out CommandOutput) response {

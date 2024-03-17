@@ -5,7 +5,8 @@ import (
 	"errors"
 	"log/slog"
 
-	"github.com/royhq/go-play-app/commons/clock"
+	"github.com/royhq/go-play-app/shared/commons/clock"
+	"github.com/royhq/go-play-app/shared/domain"
 )
 
 type (
@@ -13,6 +14,10 @@ type (
 
 	UserInserter interface {
 		Insert(context.Context, User) error
+	}
+
+	UserCreatedEventPublisher interface {
+		Publish(context.Context, CreatedUserEvent)
 	}
 )
 
@@ -38,6 +43,7 @@ type CommandHandler struct {
 	log          *slog.Logger
 	clock        clock.Clock
 	inserter     UserInserter
+	publisher    UserCreatedEventPublisher
 	generateUUID UUIDGenerator
 }
 
@@ -47,7 +53,7 @@ func (h *CommandHandler) Handle(ctx context.Context, cmd Command) (CommandOutput
 	}
 
 	user := User{
-		ID:      UserID(h.generateUUID()),
+		ID:      domain.UserID(h.generateUUID()),
 		Name:    cmd.Name,
 		Age:     cmd.Age,
 		Created: h.clock.Now(),
@@ -57,9 +63,11 @@ func (h *CommandHandler) Handle(ctx context.Context, cmd Command) (CommandOutput
 		return CommandOutput{}, &CommandError{Msg: "create user error", Code: "users_error", Cause: err}
 	}
 
-	h.log.InfoContext(ctx, "user inserted successfully")
+	h.log.DebugContext(ctx, "user inserted successfully")
 
-	// TODO: add logic
+	event := CreatedUserEvent{Date: h.clock.Now(), UserID: string(user.ID)}
+
+	h.publisher.Publish(ctx, event)
 
 	h.log.InfoContext(ctx, "user created successfully")
 
@@ -82,12 +90,14 @@ func NewCommandHandler(
 	log *slog.Logger,
 	clock clock.Clock,
 	inserter UserInserter,
+	publisher UserCreatedEventPublisher,
 	uuidGen UUIDGenerator,
 ) *CommandHandler {
 	return &CommandHandler{
 		log:          log,
 		clock:        clock,
 		inserter:     inserter,
+		publisher:    publisher,
 		generateUUID: uuidGen,
 	}
 }
