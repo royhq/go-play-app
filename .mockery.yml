@@ -8,3 +8,4 @@ packages:
   github.com/royhq/go-play-app/features/users/create:
     interfaces:
       UserInserter:
+      UserCreatedEventPublisher:

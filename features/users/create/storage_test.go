@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/royhq/go-play-app/use_cases/users/create"
+	"github.com/royhq/go-play-app/features/users/create"
 )
 
 func TestPgUsersRepository_Insert(t *testing.T) {

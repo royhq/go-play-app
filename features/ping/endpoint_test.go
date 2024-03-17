@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/royhq/go-play-app/use_cases/ping"
+	"github.com/royhq/go-play-app/features/ping"
 )
 
 func TestEndpointHandler_ServeHTTP(t *testing.T) {

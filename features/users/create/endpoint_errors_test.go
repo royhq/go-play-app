@@ -13,7 +13,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/royhq/go-play-app/use_cases/users/create"
+	"github.com/royhq/go-play-app/features/users/create"
 )
 
 func TestEndpointErrorHandler_HandleError(t *testing.T) {
