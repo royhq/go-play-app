@@ -10,13 +10,15 @@ import (
 )
 
 func main() {
+	ctx := context.Background()
+
 	ch, closeCh, err := usersCreatedChannel("users-created")
 	if err != nil {
 		closeCh()
 		log.Fatal(err)
 	}
 
-	c, err := ch.Consume("users-created", "", true, false, false, false, nil)
+	c, err := ch.ConsumeWithContext(ctx, "users-created", "", true, false, false, false, nil)
 	if err != nil {
 		log.Println("error consuming:", err)
 	}
@@ -47,6 +49,8 @@ func usersCreatedChannel(queueName string) (*amqp.Channel, func(), error) {
 			slog.ErrorContext(context.Background(), "error closing rabbitmq connection",
 				"error", connErr)
 		}
+
+		slog.DebugContext(context.Background(), "rabbitmq connection closed")
 	}
 
 	ch, err := conn.Channel()
@@ -59,6 +63,8 @@ func usersCreatedChannel(queueName string) (*amqp.Channel, func(), error) {
 			slog.ErrorContext(context.Background(), "error closing rabbitmq channel",
 				"error", chErr)
 		}
+
+		slog.DebugContext(context.Background(), "rabbitmq channel closed")
 
 		closeConn()
 	}

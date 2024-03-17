@@ -11,11 +11,11 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	amqp "github.com/rabbitmq/amqp091-go"
 
+	"github.com/royhq/go-play-app/features/ping"
+	userscreate "github.com/royhq/go-play-app/features/users/create"
 	"github.com/royhq/go-play-app/shared/commons/clock"
 	"github.com/royhq/go-play-app/shared/infra/http/middleware"
 	"github.com/royhq/go-play-app/shared/infra/uuid"
-	"github.com/royhq/go-play-app/features/ping"
-	userscreate "github.com/royhq/go-play-app/features/users/create"
 )
 
 type MainApp struct {

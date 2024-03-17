@@ -26,17 +26,15 @@ func (p *RabbitEventPublisher) Publish(ctx context.Context, event CreatedUserEve
 		return
 	}
 
-	msg := amqp.Publishing{
-		ContentType: "application/json",
-		Body:        body,
-	}
-
 	err = p.ch.PublishWithContext(ctx,
 		"",
-		"",
+		"users-created",
 		false,
 		false,
-		msg,
+		amqp.Publishing{
+			ContentType: "application/json",
+			Body:        body,
+		},
 	)
 
 	if err != nil {
