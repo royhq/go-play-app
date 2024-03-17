@@ -4,19 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"log/slog"
-	"time"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-type CreatedUserEvent struct {
-	Date   time.Time
-	UserID string
-}
-
 type RabbitEventPublisher struct {
-	log *slog.Logger
-	ch  *amqp.Channel
+	queue string
+	ch    *amqp.Channel
+	log   *slog.Logger
 }
 
 func (p *RabbitEventPublisher) Publish(ctx context.Context, event CreatedUserEvent) {
@@ -28,7 +23,7 @@ func (p *RabbitEventPublisher) Publish(ctx context.Context, event CreatedUserEve
 
 	err = p.ch.PublishWithContext(ctx,
 		"",
-		"users-created",
+		p.queue,
 		false,
 		false,
 		amqp.Publishing{
@@ -46,9 +41,10 @@ func (p *RabbitEventPublisher) Publish(ctx context.Context, event CreatedUserEve
 
 }
 
-func NewRabbitEventPublisher(ch *amqp.Channel, log *slog.Logger) *RabbitEventPublisher {
+func NewRabbitEventPublisher(queue string, ch *amqp.Channel, log *slog.Logger) *RabbitEventPublisher {
 	return &RabbitEventPublisher{
-		log: log,
-		ch:  ch,
+		queue: queue,
+		ch:    ch,
+		log:   log,
 	}
 }

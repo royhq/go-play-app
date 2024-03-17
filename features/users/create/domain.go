@@ -12,3 +12,8 @@ type User struct {
 	Age     int
 	Created time.Time
 }
+
+type CreatedUserEvent struct {
+	Date   time.Time `json:"date"`
+	UserID string    `json:"user_id"`
+}
